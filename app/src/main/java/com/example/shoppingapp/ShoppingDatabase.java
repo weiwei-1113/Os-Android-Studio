@@ -90,6 +90,16 @@ public class ShoppingDatabase extends SQLiteOpenHelper {
                 TB_CLM_DESCRIPTION+" TEXT , "+TB_CLM_DISCOUNT+" REAL) ; ";
     }
 
+    public boolean updateProductQuantityInPurchases(Products product) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(TB_CLM_QUANTITY, product.getQuantity());
+        String whereClause = TB_CLM_NAME + "=?";
+        String[] whereArgs = {product.getName()};
+        int result = db.update(TB_PURCHASES, values, whereClause, whereArgs);
+        db.close();
+        return result > 0;
+    }
 
     public boolean insertProduct(Products p,String tableName){
         SQLiteDatabase db = getWritableDatabase();
@@ -147,7 +157,7 @@ public class ShoppingDatabase extends SQLiteOpenHelper {
                 Products p = new Products(image,name,price,brand,pieces,description,discount);
                 products.add(p);
             }while (cursor.moveToNext());
-                cursor.close();
+            cursor.close();
         }
         db.close();
         return products;
@@ -323,6 +333,14 @@ public class ShoppingDatabase extends SQLiteOpenHelper {
     public void deleteAllProductsInPurchases() {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TB_PURCHASES); // 使用 DELETE FROM 語法刪除資料
+        db.close();
+    }
+
+    public void deleteProductFromPurchases(Products product) {
+        SQLiteDatabase db = getWritableDatabase();
+        String whereClause = "name = ?";
+        String[] whereArgs = {product.getName()};
+        db.delete("purchases", whereClause, whereArgs);
         db.close();
     }
 
